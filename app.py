@@ -38,11 +38,20 @@ class Cannon:
                self.y + self.HEIGHT * math.sin(self.angle))
         pygame.draw.line(screen, self.COLOR, center, end, self.WIDTH)
 
+    def move(self, angle):
+        self.angle = angle
+
 
 def draw(screen, cannon):
     screen.fill(BLACK)
     cannon.draw(screen)
     pygame.display.flip()
+
+
+def handle_movement(cannon):
+    pos = pygame.mouse.get_pos()
+    angle = math.atan2(pos[1] - cannon.y, pos[0] - cannon.x)
+    cannon.move(angle)
 
 
 def main():
@@ -55,6 +64,8 @@ def main():
         clock.tick(FPS)
 
         draw(screen, cannon)
+
+        handle_movement(cannon)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
