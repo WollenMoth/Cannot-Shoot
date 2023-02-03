@@ -29,17 +29,21 @@ class Cannon:
     def __init__(self, x, y, angle):
         self.x = x
         self.y = y
+        self.center = (x, y)
         self.angle = angle
+        self.end = self.get_end()
+
+    def get_end(self):
+        return (self.x + self.HEIGHT * math.cos(self.angle),
+                self.y + self.HEIGHT * math.sin(self.angle))
 
     def draw(self, screen):
-        center = (self.x, self.y)
-        pygame.draw.circle(screen, self.COLOR, center, self.RADIUS)
-        end = (self.x + self.HEIGHT * math.cos(self.angle),
-               self.y + self.HEIGHT * math.sin(self.angle))
-        pygame.draw.line(screen, self.COLOR, center, end, self.WIDTH)
+        pygame.draw.circle(screen, self.COLOR, self.center, self.RADIUS)
+        pygame.draw.line(screen, self.COLOR, self.center, self.end, self.WIDTH)
 
     def move(self, angle):
         self.angle = angle
+        self.end = self.get_end()
 
 
 def draw(screen, cannon):
