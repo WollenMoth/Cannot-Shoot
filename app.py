@@ -18,13 +18,20 @@ BALL_COLOR = WHITE
 BALL_RADIUS = 10
 BALL_VELOCITY = 5
 
+BLOCK_COLOR = WHITE
+BLOCK_HEIGHT = 40
+BLOCK_GAP = 16
+BLOCK_COUNT = (10, 5)
+
+TEXT_HEIGHT = 60
+
 pygame.init()
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.display.set_caption("Tiro de Cañón")
 
-font = pygame.font.SysFont("Arial", 30)
+font = pygame.font.SysFont("Arial", TEXT_HEIGHT // 2)
 
 
 class Cannon:
@@ -93,7 +100,21 @@ class Ball:
         self.center = (self.x, self.y)
 
 
-def draw(screen, cannon, balls, text):
+class Block:
+    COLOR = BLOCK_COLOR
+    HEIGHT = BLOCK_HEIGHT
+
+    def __init__(self, x, y, width):
+        self.x = x
+        self.y = y
+        self.width = width
+
+    def draw(self, screen):
+        rect = (self.x, self.y, self.width, self.HEIGHT)
+        pygame.draw.rect(screen, self.COLOR, rect)
+
+
+def draw(screen, cannon, balls, text, blocks):
     screen.fill(BLACK)
 
     cannon.draw(screen)
@@ -102,9 +123,12 @@ def draw(screen, cannon, balls, text):
         ball.draw(screen)
 
     text_rect = text.get_rect()
-    text_rect.center = (WIDTH // 2, 30)
+    text_rect.center = (WIDTH // 2, TEXT_HEIGHT // 2)
 
     screen.blit(text, text_rect)
+
+    for block in blocks:
+        block.draw(screen)
 
     pygame.display.flip()
 
@@ -138,12 +162,28 @@ def main():
 
     pressed = False
 
+    blocks = []
+
+    block_width = (WIDTH - BLOCK_GAP * (BLOCK_COUNT[0] + 1)) // BLOCK_COUNT[0]
+
+    start_x = BLOCK_GAP
+    step_x = block_width + BLOCK_GAP
+    end_x = WIDTH - step_x
+
+    start_y = BLOCK_GAP + TEXT_HEIGHT
+    step_y = BLOCK_HEIGHT + BLOCK_GAP
+    end_y = start_y + BLOCK_COUNT[1] * step_y
+
+    for i in range(start_x, end_x, step_x):
+        for j in range(start_y, end_y, step_y):
+            blocks.append(Block(i, j, block_width))
+
     while running:
         clock.tick(FPS)
 
         text = font.render(f"Balls: {cannon.BALLS}", True, WHITE)
 
-        draw(screen, cannon, balls, text)
+        draw(screen, cannon, balls, text, blocks)
 
         handle_movement(cannon, balls)
 
