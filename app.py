@@ -56,7 +56,8 @@ class Cannon:
 class Ball:
     COLOR = BALL_COLOR
     RADIUS = BALL_RADIUS
-    VELOCITY = BALL_VELOCITY
+    VELOCITY_X = BALL_VELOCITY
+    VELOCITY_Y = BALL_VELOCITY
 
     def __init__(self, x, y, angle):
         self.x = x
@@ -68,8 +69,19 @@ class Ball:
         pygame.draw.circle(screen, self.COLOR, self.center, self.RADIUS)
 
     def move(self):
-        self.x += self.VELOCITY * math.cos(self.angle)
-        self.y += self.VELOCITY * math.sin(self.angle)
+        next_x = self.x + self.VELOCITY_X * math.cos(self.angle)
+        next_y = self.y + self.VELOCITY_Y * math.sin(self.angle)
+
+        if next_x - self.RADIUS > 0 and next_x + self.RADIUS < WIDTH:
+            self.x = next_x
+        else:
+            self.VELOCITY_X *= -1
+
+        if next_y - self.RADIUS > 0 and next_y + self.RADIUS < HEIGHT:
+            self.y = next_y
+        else:
+            self.VELOCITY_Y *= -1
+
         self.center = (self.x, self.y)
 
 
@@ -86,16 +98,8 @@ def handle_movement(cannon, balls):
     angle = math.atan2(pos[1] - cannon.y, pos[0] - cannon.x)
     cannon.move(angle)
 
-    for idx, ball in enumerate(balls):
+    for ball in balls:
         ball.move()
-
-        if (
-            ball.x < 0 or
-            ball.x > WIDTH or
-            ball.y < 0 or
-            ball.y > HEIGHT
-        ):
-            del balls[idx]
 
 
 def handle_shoot(cannon, balls):
