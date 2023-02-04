@@ -83,6 +83,8 @@ class Ball:
 
         if next_y - self.RADIUS > 0 and next_y + self.RADIUS < HEIGHT:
             self.y = next_y
+        elif next_y + self.RADIUS > HEIGHT:
+            return True
         else:
             self.VELOCITY_Y *= -1
 
@@ -103,7 +105,8 @@ def handle_movement(cannon, balls):
     cannon.move(angle)
 
     for ball in balls:
-        ball.move()
+        if ball.move():
+            balls.remove(ball)
 
 
 def handle_shoot(cannon, balls):
