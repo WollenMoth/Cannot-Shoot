@@ -93,15 +93,19 @@ class Ball:
 
 def draw(screen, cannon, balls):
     screen.fill(BLACK)
+
     cannon.draw(screen)
+
     for ball in balls:
         ball.draw(screen)
+
     pygame.display.flip()
 
 
 def handle_movement(cannon, balls):
     pos = pygame.mouse.get_pos()
     angle = math.atan2(pos[1] - cannon.y, pos[0] - cannon.x)
+
     cannon.move(angle)
 
     for ball in balls:
@@ -118,6 +122,7 @@ def handle_shoot(cannon, balls):
 
 def main():
     running = True
+    
     clock = pygame.time.Clock()
 
     cannon = Cannon(WIDTH // 2, HEIGHT, 3 * math.pi / 2)
