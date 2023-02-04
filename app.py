@@ -12,6 +12,7 @@ CANNON_COLOR = WHITE
 CANNON_RADIUS = 50
 CANNON_WIDTH = 20
 CANNON_HEIGHT = 80
+CANNON_BALLS = 10
 
 BALL_COLOR = WHITE
 BALL_RADIUS = 10
@@ -29,6 +30,7 @@ class Cannon:
     RADIUS = CANNON_RADIUS
     WIDTH = CANNON_WIDTH
     HEIGHT = CANNON_HEIGHT
+    BALLS = CANNON_BALLS
 
     def __init__(self, x, y, angle):
         self.x = x
@@ -50,7 +52,9 @@ class Cannon:
         self.end = self.get_end()
 
     def shoot(self):
-        return Ball(*self.end, self.angle)
+        if self.BALLS:
+            self.BALLS -= 1
+            return Ball(*self.end, self.angle)
 
 
 class Ball:
@@ -103,7 +107,10 @@ def handle_movement(cannon, balls):
 
 
 def handle_shoot(cannon, balls):
-    balls.append(cannon.shoot())
+    ball = cannon.shoot()
+
+    if ball:
+        balls.append(ball)
 
 
 def main():
