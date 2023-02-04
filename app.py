@@ -24,6 +24,8 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.display.set_caption("Tiro de Cañón")
 
+font = pygame.font.SysFont("Arial", 30)
+
 
 class Cannon:
     COLOR = CANNON_COLOR
@@ -91,13 +93,18 @@ class Ball:
         self.center = (self.x, self.y)
 
 
-def draw(screen, cannon, balls):
+def draw(screen, cannon, balls, text):
     screen.fill(BLACK)
 
     cannon.draw(screen)
 
     for ball in balls:
         ball.draw(screen)
+
+    text_rect = text.get_rect()
+    text_rect.center = (WIDTH // 2, 30)
+
+    screen.blit(text, text_rect)
 
     pygame.display.flip()
 
@@ -122,7 +129,7 @@ def handle_shoot(cannon, balls):
 
 def main():
     running = True
-    
+
     clock = pygame.time.Clock()
 
     cannon = Cannon(WIDTH // 2, HEIGHT, 3 * math.pi / 2)
@@ -134,7 +141,9 @@ def main():
     while running:
         clock.tick(FPS)
 
-        draw(screen, cannon, balls)
+        text = font.render(f"Balls: {cannon.BALLS}", True, WHITE)
+
+        draw(screen, cannon, balls, text)
 
         handle_movement(cannon, balls)
 
