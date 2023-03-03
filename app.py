@@ -139,9 +139,14 @@ def handle_movement(cannon, balls, blocks):
 
     cannon.move(angle)
 
+    balls_to_remove = []
+
     for ball in balls:
         if ball.move():
-            balls.remove(ball)
+            balls_to_remove.append(ball)
+
+    for ball in balls_to_remove:
+        balls.remove(ball)
 
     handle_block_collisions(balls, blocks)
 
@@ -154,17 +159,22 @@ def handle_shoot(cannon, balls):
 
 
 def handle_block_collisions(balls, blocks):
+    blocks_to_remove = []
+
     for ball in balls:
         for block in blocks:
             if ball.center[1] - ball.RADIUS <= block.y + block.HEIGHT and \
                ball.center[1] + ball.RADIUS >= block.y and \
                ball.center[0] - ball.RADIUS <= block.x + block.width and \
                ball.center[0] + ball.RADIUS >= block.x:
-                blocks.remove(block)
+                blocks_to_remove.append(block)
                 if ball.center[0] < block.x or ball.center[0] > block.x + block.width:
                     ball.VELOCITY_X *= -1
                 else:
                     ball.VELOCITY_Y *= -1
+
+    for block in blocks_to_remove:
+        blocks.remove(block)
 
 
 def main():
