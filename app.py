@@ -133,7 +133,7 @@ def draw(screen, cannon, balls, text, blocks):
     pygame.display.flip()
 
 
-def handle_movement(cannon, balls):
+def handle_movement(cannon, balls, blocks):
     pos = pygame.mouse.get_pos()
     angle = math.atan2(pos[1] - cannon.y, pos[0] - cannon.x)
 
@@ -143,12 +143,28 @@ def handle_movement(cannon, balls):
         if ball.move():
             balls.remove(ball)
 
+    handle_block_collisions(balls, blocks)
+
 
 def handle_shoot(cannon, balls):
     ball = cannon.shoot()
 
     if ball:
         balls.append(ball)
+
+
+def handle_block_collisions(balls, blocks):
+    for ball in balls:
+        for block in blocks:
+            if ball.center[1] - ball.RADIUS <= block.y + block.HEIGHT and \
+               ball.center[1] + ball.RADIUS >= block.y and \
+               ball.center[0] - ball.RADIUS <= block.x + block.width and \
+               ball.center[0] + ball.RADIUS >= block.x:
+                blocks.remove(block)
+                if ball.center[0] < block.x or ball.center[0] > block.x + block.width:
+                    ball.VELOCITY_X *= -1
+                else:
+                    ball.VELOCITY_Y *= -1
 
 
 def main():
@@ -185,7 +201,7 @@ def main():
 
         draw(screen, cannon, balls, text, blocks)
 
-        handle_movement(cannon, balls)
+        handle_movement(cannon, balls, blocks)
 
         last_pressed = pressed
         pressed = pygame.mouse.get_pressed()[0]
