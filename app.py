@@ -20,7 +20,7 @@ BALL_VELOCITY = 5
 
 BLOCK_COLOR = WHITE
 BLOCK_HEIGHT = 40
-BLOCK_GAP = 16
+BLOCK_GAP = 30
 BLOCK_COUNT = (10, 5)
 
 TEXT_HEIGHT = 60
@@ -184,7 +184,7 @@ def main():
 
     start_x = BLOCK_GAP
     step_x = block_width + BLOCK_GAP
-    end_x = WIDTH - step_x
+    end_x = start_x + BLOCK_COUNT[0] * step_x
 
     start_y = BLOCK_GAP + TEXT_HEIGHT
     step_y = BLOCK_HEIGHT + BLOCK_GAP
