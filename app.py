@@ -114,7 +114,7 @@ class Block:
         pygame.draw.rect(screen, self.COLOR, rect)
 
 
-def draw(screen, cannon, balls, text, blocks):
+def draw(screen, cannon, balls, text, message, blocks):
     screen.fill(BLACK)
 
     cannon.draw(screen)
@@ -126,6 +126,12 @@ def draw(screen, cannon, balls, text, blocks):
     text_rect.center = (WIDTH // 2, TEXT_HEIGHT // 2)
 
     screen.blit(text, text_rect)
+
+    if message:
+        message_rect = message.get_rect()
+        message_rect.center = (WIDTH // 2, TEXT_HEIGHT)
+
+        screen.blit(message, message_rect)
 
     for block in blocks:
         block.draw(screen)
@@ -177,52 +183,70 @@ def handle_block_collisions(balls, blocks):
         blocks.remove(block)
 
 
+def check_win(balls, blocks, cannon):
+    if len(balls) + cannon.BALLS == 0 and len(blocks) > 0:
+        return font.render("Perdiste. Presiona espacio para reiniciar.", True, WHITE)
+    elif len(blocks) == 0:
+        return font.render("Ganaste. Presiona espacio para reiniciar.", True, WHITE)
+    else:
+        return None
+
+
 def main():
-    running = True
+    restart = True
 
-    clock = pygame.time.Clock()
+    while restart:
+        running = True
 
-    cannon = Cannon(WIDTH // 2, HEIGHT, 3 * math.pi / 2)
+        clock = pygame.time.Clock()
 
-    balls = []
+        cannon = Cannon(WIDTH // 2, HEIGHT, 3 * math.pi / 2)
 
-    pressed = False
+        balls = []
 
-    blocks = []
+        pressed = False
 
-    block_width = (WIDTH - BLOCK_GAP * (BLOCK_COUNT[0] + 1)) // BLOCK_COUNT[0]
+        blocks = []
 
-    start_x = BLOCK_GAP
-    step_x = block_width + BLOCK_GAP
-    end_x = start_x + BLOCK_COUNT[0] * step_x
+        block_width = (WIDTH - BLOCK_GAP *
+                       (BLOCK_COUNT[0] + 1)) // BLOCK_COUNT[0]
 
-    start_y = BLOCK_GAP + TEXT_HEIGHT
-    step_y = BLOCK_HEIGHT + BLOCK_GAP
-    end_y = start_y + BLOCK_COUNT[1] * step_y
+        start_x = BLOCK_GAP
+        step_x = block_width + BLOCK_GAP
+        end_x = start_x + BLOCK_COUNT[0] * step_x
 
-    for i in range(start_x, end_x, step_x):
-        for j in range(start_y, end_y, step_y):
-            blocks.append(Block(i, j, block_width))
+        start_y = 2 * TEXT_HEIGHT
+        step_y = BLOCK_HEIGHT + BLOCK_GAP
+        end_y = start_y + BLOCK_COUNT[1] * step_y
 
-    while running:
-        clock.tick(FPS)
+        for i in range(start_x, end_x, step_x):
+            for j in range(start_y, end_y, step_y):
+                blocks.append(Block(i, j, block_width))
 
-        text = font.render(f"Balls: {cannon.BALLS}", True, WHITE)
+        while running:
+            clock.tick(FPS)
 
-        draw(screen, cannon, balls, text, blocks)
+            text = font.render(f"Balls: {cannon.BALLS}", True, WHITE)
 
-        handle_movement(cannon, balls, blocks)
+            message = check_win(balls, blocks, cannon)
 
-        last_pressed = pressed
-        pressed = pygame.mouse.get_pressed()[0]
+            draw(screen, cannon, balls, text, message, blocks)
 
-        if (pressed and not last_pressed):
-            handle_shoot(cannon, balls)
+            handle_movement(cannon, balls, blocks)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            last_pressed = pressed
+            pressed = pygame.mouse.get_pressed()[0]
+
+            if (pressed and not last_pressed):
+                handle_shoot(cannon, balls)
+
+            if message and pygame.key.get_pressed()[pygame.K_SPACE]:
                 running = False
-                break
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    restart = False
 
     pygame.quit()
 
