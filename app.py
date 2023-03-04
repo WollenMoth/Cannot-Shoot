@@ -313,7 +313,7 @@ def main() -> None:
             for j in range(2 * TEXT_HEIGHT, 2 * TEXT_HEIGHT + BLOCK_COUNT[1] * step_y, step_y):
                 blocks.append(Block((i, j), block_width))
 
-        while True:
+        while restart:
             clock.tick(FPS)
 
             text = font.render(f"Balls: {cannon.balls}", True, WHITE)
