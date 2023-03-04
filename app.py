@@ -1,5 +1,6 @@
-import pygame
 import math
+from typing import Union
+import pygame
 
 WIDTH, HEIGHT = 800, 600
 
@@ -23,7 +24,7 @@ BLOCK_HEIGHT = 40
 BLOCK_GAP = 30
 BLOCK_COUNT = (10, 5)
 
-TEXT_HEIGHT = 60
+TEXT_HEIGHT = 30
 
 pygame.init()
 
@@ -31,96 +32,147 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.display.set_caption("Tiro de Cañón")
 
-font = pygame.font.SysFont("Arial", TEXT_HEIGHT // 2)
-
-
-class Cannon:
-    COLOR = CANNON_COLOR
-    RADIUS = CANNON_RADIUS
-    WIDTH = CANNON_WIDTH
-    HEIGHT = CANNON_HEIGHT
-    BALLS = CANNON_BALLS
-
-    def __init__(self, x, y, angle):
-        self.x = x
-        self.y = y
-        self.center = (x, y)
-        self.angle = angle
-        self.end = self.get_end()
-
-    def get_end(self):
-        return (self.x + self.HEIGHT * math.cos(self.angle),
-                self.y + self.HEIGHT * math.sin(self.angle))
-
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.COLOR, self.center, self.RADIUS)
-        pygame.draw.line(screen, self.COLOR, self.center, self.end, self.WIDTH)
-
-    def move(self, angle):
-        self.angle = angle
-        self.end = self.get_end()
-
-    def shoot(self):
-        if self.BALLS:
-            self.BALLS -= 1
-            return Ball(*self.end, self.angle)
+font = pygame.font.SysFont("Arial", TEXT_HEIGHT)
 
 
 class Ball:
-    COLOR = BALL_COLOR
-    RADIUS = BALL_RADIUS
-    VELOCITY_X = BALL_VELOCITY
-    VELOCITY_Y = BALL_VELOCITY
+    """Representa una bola disparada por el cañón."""
 
-    def __init__(self, x, y, angle):
-        self.x = x
-        self.y = y
-        self.center = (x, y)
+    def __init__(self, center: tuple[int, int], angle: float) -> None:
+        """Inicializa los atributos del objeto bola.
+
+        Args:
+            center (tuple[int, int]): Coordenadas (x, y) del centro de la bola.
+            angle (float): Ángulo de disparo de la bola en radianes.
+        """
+        self.center = [*center]
         self.angle = angle
+        self.color = BALL_COLOR
+        self.radius = BALL_RADIUS
+        self.velocity_x = BALL_VELOCITY
+        self.velocity_y = BALL_VELOCITY
 
-    def draw(self, screen):
-        pygame.draw.circle(screen, self.COLOR, self.center, self.RADIUS)
+    def draw(self) -> None:
+        """Dibuja la bola en la pantalla."""
+        pygame.draw.circle(screen, self.color, self.center, self.radius)
 
-    def move(self):
-        next_x = self.x + self.VELOCITY_X * math.cos(self.angle)
-        next_y = self.y + self.VELOCITY_Y * math.sin(self.angle)
+    def move(self) -> bool:
+        """Mueve la bola en función del ángulo y la velocidad de la misma.
 
-        if next_x - self.RADIUS > 0 and next_x + self.RADIUS < WIDTH:
-            self.x = next_x
+        Returns:
+            bool: Si la bola ha llegado al borde inferior de la pantalla.
+        """
+        next_x = self.center[0] + self.velocity_x * math.cos(self.angle)
+        next_y = self.center[1] + self.velocity_y * math.sin(self.angle)
+
+        if next_x - self.radius > 0 and next_x + self.radius < WIDTH:
+            self.center[0] = int(next_x)
         else:
-            self.VELOCITY_X *= -1
+            self.velocity_x *= -1
 
-        if next_y - self.RADIUS > 0 and next_y + self.RADIUS < HEIGHT:
-            self.y = next_y
-        elif next_y + self.RADIUS > HEIGHT:
+        if next_y - self.radius > 0 and next_y + self.radius < HEIGHT:
+            self.center[1] = int(next_y)
+        elif next_y + self.radius > HEIGHT:
             return True
         else:
-            self.VELOCITY_Y *= -1
+            self.velocity_y *= -1
 
-        self.center = (self.x, self.y)
+        return False
 
 
 class Block:
-    COLOR = BLOCK_COLOR
-    HEIGHT = BLOCK_HEIGHT
+    """Representa un bloque destruible por las bolas."""
 
-    def __init__(self, x, y, width):
-        self.x = x
-        self.y = y
+    def __init__(self, start: tuple[int, int], width: int) -> None:
+        """Inicializa los atributos del objeto bloque.
+
+        Args:
+            start (tuple[int, int]): Coordenadas (x, y) del punto superior izquierdo del bloque.
+            width (int): Ancho del bloque.
+        """
+        self.start = start
         self.width = width
+        self.color = BLOCK_COLOR
+        self.height = BLOCK_HEIGHT
 
-    def draw(self, screen):
-        rect = (self.x, self.y, self.width, self.HEIGHT)
-        pygame.draw.rect(screen, self.COLOR, rect)
+    def draw(self) -> None:
+        """Dibuja el bloque en la pantalla."""
+        rect = (*self.start, self.width, self.height)
+        pygame.draw.rect(screen, self.color, rect)
 
 
-def draw(screen, cannon, balls, text, message, blocks):
+class Cannon:
+    """Representa el cañón que dispara bolas."""
+
+    def __init__(self, center: tuple[int, int], angle: float) -> None:
+        """Inicializa los atributos del objeto cañón.
+
+        Args:
+            x (float): Coordenada x del centro del cañón.
+            y (float): Coordenada y del centro del cañón.
+            angle (float): Ángulo inicial del cañón en radianes.
+        """
+        self.center = center
+        self.angle = angle
+        self.color = CANNON_COLOR
+        self.radius = CANNON_RADIUS
+        self.width = CANNON_WIDTH
+        self.height = CANNON_HEIGHT
+        self.balls = CANNON_BALLS
+
+    def get_end(self) -> tuple[int, int]:
+        """Calcula el extremo del cañón en función del ángulo actual.
+
+        Returns:
+            Tuple[int, int]: Coordenadas (x, y) del extremo del cañón.
+        """
+        return (int(self.center[0] + self.height * math.cos(self.angle)),
+                int(self.center[1] + self.height * math.sin(self.angle)))
+
+    def draw(self) -> None:
+        """Dibuja el cañón en la pantalla."""
+        pygame.draw.circle(screen, self.color, self.center, self.radius)
+        end = self.get_end()
+        pygame.draw.line(screen, self.color, self.center, end, self.width)
+
+    def move(self, angle: float) -> None:
+        """Mueve el cañón a una nueva posición en función del ángulo dado.
+
+        Args:
+            angle (float): Nuevo ángulo del cañón en radianes.
+        """
+        self.angle = angle
+
+    def shoot(self) -> Union[Ball, None]:
+        """Crea una nueva bola y la devuelve si hay bolas disponibles."""
+        if self.balls:
+            self.balls -= 1
+            return Ball(self.get_end(), self.angle)
+        return None
+
+
+def draw(
+    cannon: Cannon,
+    balls: list[Ball],
+    blocks: list[Block],
+    text: pygame.Surface,
+    message: Union[pygame.Surface, None]
+) -> None:
+    """Dibuja todos los elementos en la pantalla.
+
+    Args:
+        cannon (Cannon): Objeto cañón.
+        balls (list[Ball]): Lista de bolas.
+        blocks (list[Block]): Lista de bloques.
+        text (pygame.Surface): Superficie con el texto de las bolas disponibles.
+        message (pygame.Surface): Superficie con el mensaje de victoria o derrota.
+    """
     screen.fill(BLACK)
 
-    cannon.draw(screen)
+    cannon.draw()
 
     for ball in balls:
-        ball.draw(screen)
+        ball.draw()
 
     text_rect = text.get_rect()
     text_rect.center = (WIDTH // 2, TEXT_HEIGHT // 2)
@@ -134,14 +186,21 @@ def draw(screen, cannon, balls, text, message, blocks):
         screen.blit(message, message_rect)
 
     for block in blocks:
-        block.draw(screen)
+        block.draw()
 
     pygame.display.flip()
 
 
-def handle_movement(cannon, balls, blocks):
+def handle_movement(cannon: Cannon, balls: list[Ball], blocks: list[Block]) -> None:
+    """Mueve el cañón y las bolas en función de la posición del ratón.
+
+    Args:
+        cannon (Cannon): Objeto cañón.
+        balls (list[Ball]): Lista de bolas.
+        blocks (list[Block]): Lista de bloques.
+    """
     pos = pygame.mouse.get_pos()
-    angle = math.atan2(pos[1] - cannon.y, pos[0] - cannon.x)
+    angle = math.atan2(*(pos[i] - cannon.center[i] for i in range(2)))
 
     cannon.move(angle)
 
@@ -157,50 +216,74 @@ def handle_movement(cannon, balls, blocks):
     handle_block_collisions(balls, blocks)
 
 
-def handle_shoot(cannon, balls):
+def handle_shoot(cannon: Cannon, balls: list[Ball]) -> None:
+    """Dispara una nueva bola si hay bolas disponibles.
+
+    Args:
+        cannon (Cannon): Objeto cañón.
+        balls (list[Ball]): Lista de bolas.
+    """
     ball = cannon.shoot()
 
     if ball:
         balls.append(ball)
 
 
-def handle_block_collisions(balls, blocks):
+def handle_block_collisions(balls: list[Ball], blocks: list[Block]) -> None:
+    """Revisa si las bolas colisionan con los bloques y los elimina si es necesario.
+
+    Args:
+        balls (list[Ball]): Lista de bolas.
+        blocks (list[Block]): Lista de bloques.
+    """
     blocks_to_remove = []
 
     for ball in balls:
         for block in blocks:
-            if ball.center[1] - ball.RADIUS <= block.y + block.HEIGHT and \
-               ball.center[1] + ball.RADIUS >= block.y and \
-               ball.center[0] - ball.RADIUS <= block.x + block.width and \
-               ball.center[0] + ball.RADIUS >= block.x:
+            if ball.center[1] - ball.radius <= block.start[1] + block.height and \
+               ball.center[1] + ball.radius >= block.start[1] and \
+               ball.center[0] - ball.radius <= block.start[0] + block.width and \
+               ball.center[0] + ball.radius >= block.start[0]:
                 blocks_to_remove.append(block)
-                if ball.center[0] < block.x or ball.center[0] > block.x + block.width:
-                    ball.VELOCITY_X *= -1
+                if ball.center[0] < block.start[0] or ball.center[0] > block.start[0] + block.width:
+                    ball.velocity_x *= -1
                 else:
-                    ball.VELOCITY_Y *= -1
+                    ball.velocity_y *= -1
 
     for block in blocks_to_remove:
         blocks.remove(block)
 
 
-def check_win(balls, blocks, cannon):
-    if len(balls) + cannon.BALLS == 0 and len(blocks) > 0:
+def check_win(
+    balls: list[Ball],
+    blocks: list[Block],
+    cannon: Cannon
+) -> Union[pygame.Surface, None]:
+    """Revisa si el jugador ha ganado o perdido y devuelve el mensaje correspondiente.
+
+    Args:
+        balls (list[Ball]): Lista de bolas.
+        blocks (list[Block]): Lista de bloques.
+        cannon (Cannon): Objeto cañón.
+
+    Returns:
+        Union[pygame.Surface, None]: Superficie con el mensaje de victoria o derrota.
+    """
+    if len(balls) + cannon.balls == 0 and len(blocks) > 0:
         return font.render("Perdiste. Presiona espacio para reiniciar.", True, WHITE)
-    elif len(blocks) == 0:
+    if len(blocks) == 0:
         return font.render("Ganaste. Presiona espacio para reiniciar.", True, WHITE)
-    else:
-        return None
+    return None
 
 
-def main():
+def main() -> None:
+    """Función principal del juego."""
     restart = True
 
     while restart:
-        running = True
-
         clock = pygame.time.Clock()
 
-        cannon = Cannon(WIDTH // 2, HEIGHT, 3 * math.pi / 2)
+        cannon = Cannon((WIDTH // 2, HEIGHT), 3 * math.pi / 2)
 
         balls = []
 
@@ -211,26 +294,21 @@ def main():
         block_width = (WIDTH - BLOCK_GAP *
                        (BLOCK_COUNT[0] + 1)) // BLOCK_COUNT[0]
 
-        start_x = BLOCK_GAP
         step_x = block_width + BLOCK_GAP
-        end_x = start_x + BLOCK_COUNT[0] * step_x
-
-        start_y = 2 * TEXT_HEIGHT
         step_y = BLOCK_HEIGHT + BLOCK_GAP
-        end_y = start_y + BLOCK_COUNT[1] * step_y
 
-        for i in range(start_x, end_x, step_x):
-            for j in range(start_y, end_y, step_y):
-                blocks.append(Block(i, j, block_width))
+        for i in range(BLOCK_GAP, BLOCK_GAP + BLOCK_COUNT[0] * step_x, step_x):
+            for j in range(2 * TEXT_HEIGHT, 2 * TEXT_HEIGHT + BLOCK_COUNT[1] * step_y, step_y):
+                blocks.append(Block((i, j), block_width))
 
-        while running:
+        while True:
             clock.tick(FPS)
 
-            text = font.render(f"Balls: {cannon.BALLS}", True, WHITE)
+            text = font.render(f"Balls: {cannon.balls}", True, WHITE)
 
             message = check_win(balls, blocks, cannon)
 
-            draw(screen, cannon, balls, text, message, blocks)
+            draw(cannon, balls, blocks, text, message)
 
             handle_movement(cannon, balls, blocks)
 
@@ -241,12 +319,12 @@ def main():
                 handle_shoot(cannon, balls)
 
             if message and pygame.key.get_pressed()[pygame.K_SPACE]:
-                running = False
+                break
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
                     restart = False
+                    break
 
     pygame.quit()
 
