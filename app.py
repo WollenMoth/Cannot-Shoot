@@ -212,7 +212,7 @@ def handle_movement(cannon: Cannon, balls: list[Ball], blocks: list[Block]) -> N
         blocks (list[Block]): Lista de bloques.
     """
     pos = pygame.mouse.get_pos()
-    angle = math.atan2(*(pos[i] - cannon.center[i] for i in range(2)))
+    angle = math.atan2(*(pos[i] - cannon.center[i] for i in [1, 0]))
 
     cannon.move(angle)
 
