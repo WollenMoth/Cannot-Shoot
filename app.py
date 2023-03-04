@@ -193,7 +193,7 @@ def draw(
 
     if message:
         message_rect = message.get_rect()
-        message_rect.center = (WIDTH // 2, TEXT_HEIGHT)
+        message_rect.center = (WIDTH // 2, (3 * TEXT_HEIGHT) // 2)
 
         screen.blit(message, message_rect)
 
