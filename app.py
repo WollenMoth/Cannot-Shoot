@@ -1,3 +1,15 @@
+"""Juego de Tiro de Cañón.
+
+El objetivo del juego es destruir todos los bloques con las bolas que dispara el cañón.
+El cañón se mueve con el puntero del mouse y dispara con el click izquierdo.
+
+El juego finaliza cuando se destruyen todos los bloques o cuando se acaban las bolas.
+
+Autores:
+    - Ángel Ricardo Gutierrez Meza (201847467)
+    - Crhistian André Díaz Bonfigli Pastrana (201829189)
+"""
+
 import math
 from typing import Union
 import pygame
