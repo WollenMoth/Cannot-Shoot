@@ -216,11 +216,11 @@ def handle_movement(cannon: Cannon, balls: list[Ball], blocks: list[Block]) -> N
 
     cannon.move(angle)
 
-    balls_to_remove = []
+    balls_to_remove = set[Ball]()
 
     for ball in balls:
         if ball.move():
-            balls_to_remove.append(ball)
+            balls_to_remove.add(ball)
 
     for ball in balls_to_remove:
         balls.remove(ball)
@@ -248,7 +248,7 @@ def handle_block_collisions(balls: list[Ball], blocks: list[Block]) -> None:
         balls (list[Ball]): Lista de bolas.
         blocks (list[Block]): Lista de bloques.
     """
-    blocks_to_remove = []
+    blocks_to_remove = set[Block]()
 
     for ball in balls:
         for block in blocks:
@@ -256,7 +256,7 @@ def handle_block_collisions(balls: list[Ball], blocks: list[Block]) -> None:
                ball.center[1] + ball.radius >= block.start[1] and \
                ball.center[0] - ball.radius <= block.start[0] + block.width and \
                ball.center[0] + ball.radius >= block.start[0]:
-                blocks_to_remove.append(block)
+                blocks_to_remove.add(block)
                 if ball.center[0] < block.start[0] or ball.center[0] > block.start[0] + block.width:
                     ball.velocity_x *= -1
                 else:
