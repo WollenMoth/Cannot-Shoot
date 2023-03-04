@@ -309,8 +309,16 @@ def main() -> None:
         step_x = block_width + BLOCK_GAP
         step_y = BLOCK_HEIGHT + BLOCK_GAP
 
-        for i in range(BLOCK_GAP, BLOCK_GAP + BLOCK_COUNT[0] * step_x, step_x):
-            for j in range(2 * TEXT_HEIGHT, 2 * TEXT_HEIGHT + BLOCK_COUNT[1] * step_y, step_y):
+        for i in range(
+            BLOCK_GAP,
+            BLOCK_GAP + BLOCK_COUNT[0] * step_x,
+            step_x
+        ):
+            for j in range(
+                2 * TEXT_HEIGHT + BLOCK_GAP,
+                2 * TEXT_HEIGHT + BLOCK_COUNT[1] * step_y,
+                step_y
+            ):
                 blocks.append(Block((i, j), block_width))
 
         while restart:
