@@ -13,23 +13,18 @@ Autores:
 import math
 from typing import Union
 import pygame
+from models.ball import Ball
+from colors import BLACK, WHITE
 
 WIDTH, HEIGHT = 800, 600
 
 FPS = 60
-
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
 
 CANNON_COLOR = WHITE
 CANNON_RADIUS = 50
 CANNON_WIDTH = 20
 CANNON_HEIGHT = 80
 CANNON_BALLS = 10
-
-BALL_COLOR = WHITE
-BALL_RADIUS = 10
-BALL_VELOCITY = 5
 
 BLOCK_COLOR = WHITE
 BLOCK_HEIGHT = 40
@@ -45,51 +40,6 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tiro de Cañón")
 
 font = pygame.font.SysFont("Arial", TEXT_HEIGHT)
-
-
-class Ball:
-    """Representa una bola disparada por el cañón."""
-
-    def __init__(self, center: tuple[int, int], angle: float) -> None:
-        """Inicializa los atributos del objeto bola.
-
-        Args:
-            center (tuple[int, int]): Coordenadas (x, y) del centro de la bola.
-            angle (float): Ángulo de disparo de la bola en radianes.
-        """
-        self.center = [*center]
-        self.angle = angle
-        self.color = BALL_COLOR
-        self.radius = BALL_RADIUS
-        self.velocity_x = BALL_VELOCITY
-        self.velocity_y = BALL_VELOCITY
-
-    def draw(self) -> None:
-        """Dibuja la bola en la pantalla."""
-        pygame.draw.circle(screen, self.color, self.center, self.radius)
-
-    def move(self) -> bool:
-        """Mueve la bola en función del ángulo y la velocidad de la misma.
-
-        Returns:
-            bool: Si la bola ha llegado al borde inferior de la pantalla.
-        """
-        next_x = self.center[0] + self.velocity_x * math.cos(self.angle)
-        next_y = self.center[1] + self.velocity_y * math.sin(self.angle)
-
-        if next_x - self.radius > 0 and next_x + self.radius < WIDTH:
-            self.center[0] = int(next_x)
-        else:
-            self.velocity_x *= -1
-
-        if next_y - self.radius > 0 and next_y + self.radius < HEIGHT:
-            self.center[1] = int(next_y)
-        elif next_y + self.radius > HEIGHT:
-            return True
-        else:
-            self.velocity_y *= -1
-
-        return False
 
 
 class Block:
@@ -184,7 +134,7 @@ def draw(
     cannon.draw()
 
     for ball in balls:
-        ball.draw()
+        ball.draw(screen)
 
     text_rect = text.get_rect()
     text_rect.center = (WIDTH // 2, TEXT_HEIGHT // 2)
@@ -219,7 +169,7 @@ def handle_movement(cannon: Cannon, balls: list[Ball], blocks: list[Block]) -> N
     balls_to_remove = set[Ball]()
 
     for ball in balls:
-        if ball.move():
+        if ball.move(screen):
             balls_to_remove.add(ball)
 
     for ball in balls_to_remove:
