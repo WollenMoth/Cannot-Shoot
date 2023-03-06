@@ -13,8 +13,7 @@ Autores:
 import math
 from typing import Union
 import pygame
-from models.ball import Ball
-from models.cannon import Cannon
+from models import Ball, Cannon
 from colors import BLACK, WHITE
 
 WIDTH, HEIGHT = 800, 600
