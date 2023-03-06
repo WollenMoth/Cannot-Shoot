@@ -13,14 +13,13 @@ Autores:
 import math
 from typing import Union
 import pygame
-from models import Ball, Cannon
+from models import Ball, Block, Cannon
 from colors import BLACK, WHITE
 
 WIDTH, HEIGHT = 800, 600
 
 FPS = 60
 
-BLOCK_COLOR = WHITE
 BLOCK_HEIGHT = 40
 BLOCK_GAP = 30
 BLOCK_COUNT = (10, 5)
@@ -34,27 +33,6 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Tiro de Cañón")
 
 font = pygame.font.SysFont("Arial", TEXT_HEIGHT)
-
-
-class Block:
-    """Representa un bloque destruible por las bolas."""
-
-    def __init__(self, start: tuple[int, int], width: int) -> None:
-        """Inicializa los atributos del objeto bloque.
-
-        Args:
-            start (tuple[int, int]): Coordenadas (x, y) del punto superior izquierdo del bloque.
-            width (int): Ancho del bloque.
-        """
-        self.start = start
-        self.width = width
-        self.color = BLOCK_COLOR
-        self.height = BLOCK_HEIGHT
-
-    def draw(self) -> None:
-        """Dibuja el bloque en la pantalla."""
-        rect = (*self.start, self.width, self.height)
-        pygame.draw.rect(screen, self.color, rect)
 
 
 def draw(
@@ -92,7 +70,7 @@ def draw(
         screen.blit(message, message_rect)
 
     for block in blocks:
-        block.draw()
+        block.draw(screen)
 
     pygame.display.flip()
 
@@ -146,10 +124,7 @@ def handle_block_collisions(balls: list[Ball], blocks: list[Block]) -> None:
 
     for ball in balls:
         for block in blocks:
-            if ball.center[1] - ball.radius <= block.start[1] + block.height and \
-               ball.center[1] + ball.radius >= block.start[1] and \
-               ball.center[0] - ball.radius <= block.start[0] + block.width and \
-               ball.center[0] + ball.radius >= block.start[0]:
+            if block.collide(ball):
                 blocks_to_remove.add(block)
                 if ball.center[0] < block.start[0] or ball.center[0] > block.start[0] + block.width:
                     ball.velocity_x *= -1
@@ -213,7 +188,7 @@ def main() -> None:
                 2 * TEXT_HEIGHT + BLOCK_COUNT[1] * step_y,
                 step_y
             ):
-                blocks.append(Block((i, j), block_width))
+                blocks.append(Block((i, j), block_width, BLOCK_HEIGHT))
 
         while restart:
             clock.tick(FPS)
