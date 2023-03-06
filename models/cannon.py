@@ -38,8 +38,8 @@ class Cannon:
         Returns:
             Coordinate: Coordenadas (x, y) del extremo del cañón.
         """
-        return (self.center[0] + self.height * math.cos(self.angle),
-                self.center[1] + self.height * math.sin(self.angle))
+        return (int(self.center[0] + self.height * math.cos(self.angle)),
+                int(self.center[1] + self.height * math.sin(self.angle)))
 
     def draw(self, screen: pygame.Surface) -> None:
         """Dibuja el cañón en la pantalla."""
