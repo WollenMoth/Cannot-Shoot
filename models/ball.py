@@ -31,7 +31,7 @@ class Ball:
         """Dibuja la bola en la pantalla."""
         pygame.draw.circle(screen, self.color, self.center, self.radius)
 
-    def move(self, screen: pygame.Surface) -> bool:
+    def move_or_remove(self, screen: pygame.Surface) -> bool:
         """Mueve la bola en función del ángulo y la velocidad de la misma.
 
         Returns:

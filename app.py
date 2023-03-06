@@ -88,11 +88,7 @@ def handle_movement(cannon: Cannon, balls: list[Ball], blocks: list[Block]) -> N
 
     cannon.move(angle)
 
-    balls_to_remove = set[Ball]()
-
-    for ball in balls:
-        if ball.move(screen):
-            balls_to_remove.add(ball)
+    balls_to_remove = set(b for b in balls if b.move_or_remove(screen))
 
     for ball in balls_to_remove:
         balls.remove(ball)
